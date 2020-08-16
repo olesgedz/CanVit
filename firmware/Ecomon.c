@@ -42,6 +42,8 @@
 #include "config.h"       // Настройки программы, собранные в одном месте
 #include "dht.h"
 #include "sdcard.h"
+#include "i2c.h"
+#include "bmp180.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Глобальные переменные
@@ -73,7 +75,9 @@ int main(void) {
 
     init_SPI();
     DHT_INIT();
-    
+
+    Bmp180CalibrationData calibrationData;
+    uint8_t result = bmp180ReadCalibrationData(&calibrationData);
     while(1) {
         _delay_ms(2000);
         notes_counter++;
@@ -89,8 +93,33 @@ int main(void) {
         
         //Rh & t  
         DHT11_getData(note+9, note+18);
-    
+        if (result == BMP180_OK)
+        {
+            Bmp180Data bmp180Data;
+            result = bmp180ReadData(BMP180_OSS_STANDARD, &bmp180Data, &calibrationData);
+            if (result == BMP180_OK)
+            {
+                float temperature = bmp180Data.temperatureC;
+              //  *(note + 9) = (uint8_t) temperature;
+                //int t = (int)(temperature * 10);
+                
+               // note[14] = (temperature - t) * 10 + ;
+                long pressure  = bmp180Data.pressurePa;
+                int p = (int)pressure;
+                note[14] = (pressure % 10) + '0';
+                pressure /= 10;
+                note[13] = (pressure % 10) + '0';
+                pressure /= 10;
+                note[12] = (pressure % 10) + '0';
+                pressure /= 10;
+                note[11] = (pressure % 10) + '0';
+            }
+        }
+       
+
         // Запись на SD карту
         write_note(note);
+
+     
     }
 }

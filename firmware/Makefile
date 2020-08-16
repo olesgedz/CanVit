@@ -80,7 +80,7 @@ OBJDIR = .
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = $(TARGET).c diskio.c pff.c
+SRC = $(TARGET).c diskio.c pff.c i2c.c bmp180.c
 
 
 # List C++ source files here. (C dependencies are automatically generated.)
@@ -388,7 +388,7 @@ ALL_CPPFLAGS = -mmcu=$(MCU) -I. -x c++ $(CPPFLAGS) $(GENDEPFLAGS)
 ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
 
 # Default target. 
-all: begin gccversion sizebefore build sizeafter end
+all: begin gccversion build end #sizebefore build sizeafter end
 
 # Change the build target to build a HEX file or a library.
 build: hex
